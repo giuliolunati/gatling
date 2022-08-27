@@ -430,12 +430,74 @@ const char* mimetypesfilename;
 
 char* base;
 
-int sort_name_a(de* x,de* y) { return (str_diff(base+x->name,base+y->name)); }
-int sort_name_d(de* x,de* y) { return (str_diff(base+y->name,base+x->name)); }
-int sort_mtime_a(de* x,de* y) { return x->ss.st_mtime-y->ss.st_mtime; }
-int sort_mtime_d(de* x,de* y) { return y->ss.st_mtime-x->ss.st_mtime; }
-int sort_size_a(de* x,de* y) { return x->ss.st_size-y->ss.st_size; }
-int sort_size_d(de* x,de* y) { return y->ss.st_size-x->ss.st_size; }
+#include "byte.h"
+// like str_diff but case insensitive
+int str_diff_icase(const char* a, const char* b) {
+  register const unsigned char* s=(const unsigned char*)a;
+  register const unsigned char* t=(const unsigned char*)b;
+  register int j;
+  for (;;) {
+    j=(*s-*t);
+    if (
+      'a'<=*s && *s<='z'
+      && (*t<'a' || 'z'<*t)
+    ) j-=32;
+    else
+    if (
+      'a'<=*t && *t<='z'
+      && (*s<'a' || 'z'<*s)
+    ) j+=32;
+    if (j || !*t) break;
+     ++s; ++t;
+  }
+  return j;
+}
+
+int dir_first(de* x,de* y) {
+  if (!strcmp(base+x->name, "..")) return -1;
+  if (!strcmp(base+y->name, "..")) return 1;
+  if (
+    !S_ISDIR(y->ss.st_mode) && !y->todir &&
+    (S_ISDIR(x->ss.st_mode) || x->todir)
+  ) return -1;
+  if (
+    !S_ISDIR(x->ss.st_mode) && !x->todir &&
+    (S_ISDIR(y->ss.st_mode) || y->todir)
+  ) return 1;
+  return 0;
+}
+int sort_name_a(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  if ((r=str_diff_icase(base+x->name,base+y->name))) return r;
+  return (str_diff(base+y->name,base+x->name));
+}
+int sort_name_d(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  if ((r=str_diff_icase(base+y->name,base+x->name))) return r;
+  return (str_diff(base+y->name,base+x->name));
+}
+int sort_mtime_a(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  return x->ss.st_mtime-y->ss.st_mtime;
+}
+int sort_mtime_d(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  return y->ss.st_mtime-x->ss.st_mtime;
+}
+int sort_size_a(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  return x->ss.st_size-y->ss.st_size;
+}
+int sort_size_d(de* x,de* y) {
+  int r;
+  if ((r=dir_first(x,y))) return r;
+  return y->ss.st_size-x->ss.st_size;
+}
 
 
 
