@@ -103,7 +103,7 @@ int forksock[2];
 
 int virtual_hosts;
 int transproxy;
-int directory_index;
+int directory_index=0;
 int logging;
 int nouploads;
 int chmoduploads;
@@ -1620,7 +1620,7 @@ int main(int argc,char* argv[],char* envp[]) {
     case 'v': virtual_hosts=1; break;
     case 'V': virtual_hosts=-1; break;
     case 't': transproxy=1; break;
-    case 'd': directory_index=1; break;
+    case 'd': directory_index+=1; break;
     case 'D': directory_index=-1; break;
 #ifdef SUPPORT_FTP
     case 'f': doftp=1; lastopt=FTP; break;
@@ -1726,6 +1726,7 @@ usage:
 		  "\t\t(default is to try both)\n"
 		  "\t-t\ttransproxy mode: do not replace :port in Host headers\n"
 		  "\t-d\tgenerate directory index\n"
+		  "\t-dd\tignore index.html and generate directory index\n"
 		  "\t-D\tdo not generate directory index\n"
 		  "\t\t(default is -d unless in virtual hosting mode)\n"
 		  "\t-T n\tset timeout in seconds (0 to disable, default 23)\n"

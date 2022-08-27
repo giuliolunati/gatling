@@ -1495,7 +1495,7 @@ makefakeheader:
     if (http_dohtaccess(h,".htaccess",nobody)==0) return -5;
 #endif
     h->mimetype="text/html";
-    if (!open_for_reading(&fd,"index.html",ss)) {
+    if (directory_index>1 || !open_for_reading(&fd,"index.html",ss)) {
       DIR* d;
       if (errno==ENOENT)
 	if (http_redirect(h,"index.html")) return -4;
