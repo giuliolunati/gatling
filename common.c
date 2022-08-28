@@ -22,7 +22,7 @@ int open_for_reading(int64* fd,const char* name,struct stat* SS) {
 #else
     struct stat ss;
     if (!SS) SS=&ss;
-    if (fstat(*fd,SS)==-1 || !(SS->st_mode&S_IROTH)) {
+    if (fstat(*fd,SS)==-1 || !(SS->st_mode&S_IROTH || open_access)) {
       close(*fd);
       *fd=-1;
       return 0;

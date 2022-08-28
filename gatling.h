@@ -248,6 +248,7 @@ extern int sort_mtime_a(de* x,de* y);
 extern int sort_mtime_d(de* x,de* y);
 extern int sort_size_a(de* x,de* y);
 extern int sort_size_d(de* x,de* y);
+extern int open_access;
 
 extern unsigned long connections;
 extern unsigned long http_connections, https_connections, ftp_connections, smb_connections;

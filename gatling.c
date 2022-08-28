@@ -594,6 +594,7 @@ unsigned long ssh_timeout;
 #endif
 
 int limit_to_lan;
+int open_access;
 
 static void accept_server_connection(int64 i,struct http_data* H,unsigned long ftptimeout_secs,tai6464 nextftp) {
   /* This is an FTP or HTTP(S) or SMB server connection.
@@ -1438,7 +1439,7 @@ int main(int argc,char* argv[],char* envp[]) {
 
     found=0;
     for (;;) {
-      int c=getopt(_argc,_argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:");
+      int c=getopt(_argc,_argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:!");
       if (c==-1) break;
       switch (c) {
       case 'c':
@@ -1617,7 +1618,7 @@ int main(int argc,char* argv[],char* envp[]) {
 
   for (;;) {
     int i;
-    int c=getopt(argc,argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:");
+    int c=getopt(argc,argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:!");
     if (c==-1) break;
     switch (c) {
     case 'L':
@@ -1773,6 +1774,9 @@ int main(int argc,char* argv[],char* envp[]) {
 #ifdef SUPPORT_THREADED_OPEN
     case 'o':
 #endif
+    case '!':
+      open_access=1;
+      break;
     default:
     case '?':
     case 'h':
@@ -1831,6 +1835,7 @@ usage:
 		  "\t-r url\tinstead of a 404, generate a redirect to url+localpart\n"
 #endif
 		  "\t-L\tonly accept connections from localhost or link/site local reserved IP addresses\n"
+		  "\t-!\tallow access to non-world-readable files\n"
 		  );
       return 0;
     }
@@ -2110,6 +2115,10 @@ usage:
       buffer_puts(buffer_1," ");
       buffer_putulong(buffer_1,port);
       buffer_putnlflush(buffer_1);
+      if (open_access) {
+        buffer_puts(buffer_1,"WARNING: ALLOWED ACCESS TO NON-WORLD-READABLE FILES! ");
+        buffer_putnlflush(buffer_1);
+      }
     }
     if (f!=-1) {
       buffer_puts(buffer_1,"start_ftp 0 ");

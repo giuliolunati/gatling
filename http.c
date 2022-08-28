@@ -1612,7 +1612,7 @@ itsafile:
 	    if (stat(fn,ss))
 	      break;	/* genuine 404, can't happen (should have been ENOENT and not ENOTDIR) */
 	    if (!S_ISDIR(ss->st_mode)) {	/* found first non-dir entry, hopefully our CGI */
-	      if (!(ss->st_mode&S_IROTH) || !io_readfile(&fd,fn))
+	      if (!(ss->st_mode&S_IROTH || open_access) || !io_readfile(&fd,fn))
 		return -1;
 	      h->mimetype=mimetype(fn,fd);
 	      fn[i]=c;
