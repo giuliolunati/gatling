@@ -1177,6 +1177,7 @@ int read_http_post(int sockfd,struct http_data* H) {
 
 
 #ifdef SUPPORT_HTACCESS
+#include <crypt.h>
 /* check whether there is a .htaccess file in the current directory.
  * if it is, expect the following format:
 
