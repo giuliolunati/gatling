@@ -38,6 +38,9 @@
 /* http header size limit: */
 #define MAX_HEADER_SIZE 8192
 
+/* :FILE shadow .FILE */
+#undef COLON_TO_DOT
+
 #ifdef __MINGW32__
 #include "windows.h"
 

@@ -214,10 +214,14 @@ int http_dirlisting(struct http_data* h,DIR* D,const char* path,const char* arg)
     struct tm* x=localtime(&ab[i].ss.st_mtime);
     if (name[0]=='.') {
       if (name[1]==0) continue; /* skip "." */
-      if (name[1]!='.' || name[2]!=0)	/* skip dot-files */
-	continue;
+#ifdef COLON_TO_DOT
+      /* skip dot-files (shadowed by colon-files)*/
+      if (name[1]!='.' || name[2]!=0) continue;
+#endif
     }
+#ifdef COLON_TO_DOT
     if (name[0]==':') name[0]='.';
+#endif
     array_cats(&c,"<tr><td><a href=\"");
     catencoded(&c,base+ab[i].name);
     if (S_ISDIR(ab[i].ss.st_mode) || ab[i].todir) array_cats(&c,"/");
@@ -1386,11 +1390,13 @@ int64 http_openfile(struct http_data* h,char* filename,struct stat* ss,int sockf
     }
     Filename[dst]=0;
   }
+#ifdef COLON_TO_DOT
   /* third, change /. to /: so .procmailrc is visible in ls as
    * :procmailrc, and it also thwarts most web root escape attacks */
   for (i=0; Filename[i]; ++i)
     if (Filename[i]=='/' && Filename[i+1]=='.')
       Filename[i+1]=':';
+#endif
   /* fourth, try to do some el-cheapo virtual hosting */
   if (!(s=http_header(h,"Host"))) {
 makefakeheader:
