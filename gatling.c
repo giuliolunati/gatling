@@ -595,6 +595,7 @@ unsigned long ssh_timeout;
 
 int limit_to_lan;
 int open_access;
+char* viewer= NULL;
 
 static void accept_server_connection(int64 i,struct http_data* H,unsigned long ftptimeout_secs,tai6464 nextftp) {
   /* This is an FTP or HTTP(S) or SMB server connection.
@@ -1439,7 +1440,7 @@ int main(int argc,char* argv[],char* envp[]) {
 
     found=0;
     for (;;) {
-      int c=getopt(_argc,_argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:!");
+      int c=getopt(_argc,_argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:?:!");
       if (c==-1) break;
       switch (c) {
       case 'c':
@@ -1459,8 +1460,6 @@ int main(int argc,char* argv[],char* envp[]) {
 	break;
       case 'u':
 	new_uid=optarg;
-	break;
-      case '?':
 	break;
       }
     }
@@ -1618,7 +1617,7 @@ int main(int argc,char* argv[],char* envp[]) {
 
   for (;;) {
     int i;
-    int c=getopt(argc,argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:!");
+    int c=getopt(argc,argv,"HP:hnfFi:p:vVdDtT:c:u:Uaw:sSO:C:lLeEr:o:N:m:A:X:I:?:!");
     if (c==-1) break;
     switch (c) {
     case 'L':
@@ -1770,15 +1769,17 @@ int main(int argc,char* argv[],char* envp[]) {
 	buffer_putsflush(buffer_2,".\n");
       }
       break;
+    case '!':
+      open_access=1;
+      break;
+    case '?':
+      viewer=optarg;
+      break;
 
 #ifdef SUPPORT_THREADED_OPEN
     case 'o':
 #endif
-    case '!':
-      open_access=1;
-      break;
     default:
-    case '?':
     case 'h':
 usage:
       buffer_putsflush(buffer_2,
@@ -1836,6 +1837,7 @@ usage:
 #endif
 		  "\t-L\tonly accept connections from localhost or link/site local reserved IP addresses\n"
 		  "\t-!\tallow access to non-world-readable files\n"
+		  "\t-? cgi\tprefix each item in dir listing with a [?] link to /cgi?/link/to/item\n"
 		  );
       return 0;
     }

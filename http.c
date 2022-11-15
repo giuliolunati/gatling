@@ -190,6 +190,15 @@ int http_dirlisting(struct http_data* h,DIR* D,const char* path,const char* arg)
   array_cats(&c,path);
   array_cats(&c,"</title>\n<h1>Index of ");
   array_cats(&c,path);
+  if (viewer) {
+      array_cats(&c," <a href=\"");
+      array_cats(&c,"/");
+      array_cats(&c,viewer);
+      array_cats(&c,"?");
+      array_cats(&c,path);
+      array_cats(&c,"\">[?]");
+      array_cats(&c,"</a> ");
+  }
   {
     char* tmp=http_header(h,"User-Agent");
     /* don't give wget the column sorting interface so wget -m does not
@@ -222,7 +231,18 @@ int http_dirlisting(struct http_data* h,DIR* D,const char* path,const char* arg)
 #ifdef COLON_TO_DOT
     if (name[0]==':') name[0]='.';
 #endif
-    array_cats(&c,"<tr><td><a href=\"");
+    array_cats(&c,"<tr><td>");
+    if (viewer) {
+      array_cats(&c,"<a href=\"");
+      array_cats(&c,"/");
+      array_cats(&c,viewer);
+      array_cats(&c,"?");
+      catencoded(&c,base+ab[i].name);
+      if (S_ISDIR(ab[i].ss.st_mode) || ab[i].todir) array_cats(&c,"/");
+      array_cats(&c,"\">[?]");
+      array_cats(&c,"</a> ");
+    }
+    array_cats(&c,"<a href=\"");
     catencoded(&c,base+ab[i].name);
     if (S_ISDIR(ab[i].ss.st_mode) || ab[i].todir) array_cats(&c,"/");
     array_cats(&c,"\">");
@@ -231,7 +251,8 @@ int http_dirlisting(struct http_data* h,DIR* D,const char* path,const char* arg)
     if (S_ISLNK(ab[i].ss.st_mode)) array_cats(&c,"@"); else
 #endif
     if (S_ISDIR(ab[i].ss.st_mode)) array_cats(&c,"/");
-    array_cats(&c,"</a><td>");
+    array_cats(&c,"</a>");
+    array_cats(&c,"<td>");
 
     j=fmt_2digits(buf,x->tm_mday);
     j+=fmt_str(buf+j,"-");
